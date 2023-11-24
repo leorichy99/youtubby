@@ -3,7 +3,7 @@ import axios from "axios";
 
 const TrendyVideos = ({ channelDetails }) => {
   const [videoDetails, setVideoDetails] = useState([]);
-  const [countryRegion, setCountryRegion] = useState("us");
+  const [countryRegion, setCountryRegion] = useState("us`");
   const [revealKeyword, setRevealKeyword] = useState(false);
 
   const fetchVideoDetails = async () => {
