@@ -9,6 +9,12 @@ function App() {
   const [picture, setPicture] = useState("");
   const [userName, setUserName] = useState("");
 
+  const fullPageStyle = {
+    minWidth: '100vw',  // 100% of the viewport width
+    // height: '100vh', // 100% of the viewport height
+    minHeight: '100vh', // Ensures the component is at least the height of the viewport
+  };
+
   const handleClick = () => {
     signInWithPopup(auth, provider).then((data) => {
       setEmail(data.user.email);
@@ -28,9 +34,9 @@ function App() {
   }, []);
 
   return (
-    <div className="container w-full h-full">
+    <>
       {email ? (
-        <Dashboard userPhoto={picture} userName={userName} userEmail={email} />
+        <Dashboard userPhoto={picture} userName={userName} userEmail={email} fullPageStyle={fullPageStyle}/>
       ) : (
         <div className="container w-full h-full bg-white flex items-center justify-center flex-col mx-auto">
           <div className="bg-white flex items-center justify-center flex-col">
@@ -45,7 +51,7 @@ function App() {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }
 

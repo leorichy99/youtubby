@@ -3,8 +3,9 @@ import axios from "axios";
 
 const TrendyVideos = ({ channelDetails }) => {
   const [videoDetails, setVideoDetails] = useState([]);
-  const [countryRegion, setCountryRegion] = useState("us`");
-  const [revealKeyword, setRevealKeyword] = useState(false);
+  const [countryRegion, setCountryRegion] = useState("us");
+  const [showModal, setShowModal] = useState(false);
+  const [selectedVideo, setSelectedVideo] = useState(null); // New state to track selected video
 
   const fetchVideoDetails = async () => {
     try {
@@ -18,80 +19,119 @@ const TrendyVideos = ({ channelDetails }) => {
     }
   };
 
+  const handleModalDismiss = () => {
+    setShowModal(false);
+  };
+
+  const handleShowKeywords = (video) => {
+    setSelectedVideo(video);
+    setShowModal(true);
+  };
+
   useEffect(() => {
-    // Call fetchVideoDetails() only if channelDetails is available
     if (channelDetails) {
       fetchVideoDetails();
     }
   }, [channelDetails, countryRegion]);
 
   return (
-    <div className="p-2">
+    <div className="w-full">
       {channelDetails && (
-        <div className="block">
+        <div className="relative w-full">
+          {showModal && selectedVideo && (
+  <div className="fixed inset-0 z-10 flex items-center justify-center bg-grayishBlack bg-opacity-75 transition-opacity duration-500 ease-in-out backdrop-blur-sm">
+    <div className="bg-white w-1/2 h-auto py-4 px-2 rounded-lg shadow-xl">
+      <img
+        src="./imgs/close.png"
+        alt="close-icon"
+        className=""
+        onClick={handleModalDismiss}
+      />
+      <div className="rounded-sm p-2">
+        <div className="text-sm text-clip overflow-wrap-break-word ">
+          {selectedVideo.snippet.tags && selectedVideo.snippet.tags.length > 0 ? (
+            selectedVideo.snippet.tags.map((tag, index) => (
+              <span key={index} className="font-light border-black bg-white text-center" >{tag} </span>
+            ))
+          ) : (
+            <p>No keywords available.</p>
+          )}
+        </div>
+        <button
+          className="p-1 bg-limeGreen text-white rounded-sm hover:shadow-sm mt-2 text-sm"
+          onClick={() => {
+            if (selectedVideo.snippet.tags) {
+              navigator.clipboard.writeText(
+                selectedVideo.snippet.tags.join(" ")
+              );
+            }
+          }}
+        >
+          Copy keywords
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
+
           <div className="flex items-center justify-between mb-4">
             <h1 className="text-2xl">
               Top 10 trendy youtube videos in{" "}
               <span>{countryRegion === "" ? "the world" : countryRegion}</span>
             </h1>
-
-         {/* select country code  */}
-
           </div>
 
           <div>
-                        {/* trendy-videos */}
-          <div className="grid grid-cols-4 gap-3 mb-3">
-            {videoDetails.length > 0 ? (
-              videoDetails.map((video, index) => (
-                <div key={index} className="bg-white rounded-md hover:shadow-xl shadow-md p-4 relative">
-                  <h1 style={{ marginBottom: 10 }} className="text-lg text-almostBlack font-semibold">{index + 1}</h1>
-                  <img
-                    src={video.snippet.thumbnails.high.url}
-                    alt="channel logo"
-                    className=" w-full"
-                  />
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-3 w-full">
+              {videoDetails.length > 0 ? (
+                videoDetails.map((video, index) => (
+                  <div
+                    key={index}
+                    className="bg-white rounded-md hover:shadow-xl shadow-md p-4 relative"
+                  >
+                    <h1
+                      style={{ marginBottom: 10 }}
+                      className="text-lg text-almostBlack font-semibold"
+                    >
+                      {index + 1}
+                    </h1>
+                    <img
+                      src={video.snippet.thumbnails.high.url}
+                      alt="channel logo"
+                      className=" w-full"
+                    />
 
-                  <h2 className="font-semibold leading-tight" style={{ display: '-webkit-box', WebkitBoxOrient: 'vertical', overflow: 'hidden', WebkitLineClamp: 2 }}>
-                    {video.snippet.title}
-                  </h2>
+                    <h2
+                      className="font-semibold leading-tight"
+                      style={{
+                        display: "-webkit-box",
+                        WebkitBoxOrient: "vertical",
+                        overflow: "hidden",
+                        WebkitLineClamp: 2,
+                      }}
+                    >
+                      {video.snippet.title}
+                    </h2>
 
-                  <p>Views: {video.statistics.viewCount}</p>
-                  <p>Likes: {video.statistics.likeCount}</p>
-                  {/* <p>Channel: {video.snippet.channelTitle}</p> */}
+                    <p>Views: {video.statistics.viewCount}</p>
+                    <p>Likes: {video.statistics.likeCount}</p>
 
-                  {revealKeyword && (
-                    <div key={index} className="p-1 my-1">
-                        <p style={{display: '-webkit-box', WebkitBoxOrient: 'vertical', overflow: 'hidden', WebkitLineClamp: 2}}>{video.snippet.tags+""}</p>
-
-              <button className="p-1 bg-limeGreen text-white rounded-sm hover:shadow-sm text-sm mt-2"
-                    onClick={() => {
-                        navigator.clipboard.writeText(
-                          videoDetails.map((video) => video.snippet.tags+"")
-                        );
-                      } }
-               >
-                 Copy keywords
-               </button>
+                    <div className="p-1 my-1">
+                      <button
+                        className="p-1 bg-limeGreen text-white rounded-sm hover:shadow-sm text-sm mt-2"
+                        onClick={() => handleShowKeywords(video)}
+                      >
+                        Show keywords
+                      </button>
                     </div>
-                  )}
-
-            {!revealKeyword && (
-                <button className="p-1 bg-limeGreen text-white rounded-sm hover:shadow-sm text-sm mt-2"
-                onClick={() => { setRevealKeyword(true)} } > Show keywords </button>
-            )}
-                  
-                </div>
-              ))
-            ) : (
-              <p>No videos found.</p>
-            )}
+                  </div>
+                ))
+              ) : (
+                <p>No videos found.</p>
+              )}
+            </div>
           </div>
-
-            {/* keywords container */}
-          
-          </div>
-
         </div>
       )}
     </div>
